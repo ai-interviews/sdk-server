@@ -1,0 +1,13 @@
+node_modules
+.env
+s.json
+test*
+tmp
+dist
+npm-debug.log
+coverage
+coverage
+.DS_Store
+.vscode
+*.wav
+.deployment
