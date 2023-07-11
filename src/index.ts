@@ -24,15 +24,6 @@ const io = new Server(server, {
   },
 });
 
-type InitialData = {
-  interviewerName?: string;
-  interviewerAge?: string;
-  interviewerVoice?: string;
-  interviewerBio?: string;
-  candidateName?: string;
-  candidateResume?: string;
-};
-
 const connectionSchema = z.object({
   interviewerName: z.string().optional(),
   interviewerAge: z.string().optional(),
@@ -40,6 +31,8 @@ const connectionSchema = z.object({
   interviewerBio: z.string().optional(),
   candidateName: z.string().optional(),
   candidateResume: z.string().optional(),
+  jobTitle: z.string().optional(),
+  jobDescription: z.string().optional(),
 });
 
 io.on("connection", async (socket) => {
@@ -53,12 +46,19 @@ io.on("connection", async (socket) => {
     interviewerBio,
     candidateName,
     candidateResume,
+    jobTitle,
+    jobDescription,
   } = connectionSchema.parse(socket.handshake.query);
+
+  console.log(jobTitle);
 
   const metrics = new Metrics();
   const interviewer = new Interviewer({
     numRequiredQuestions: 3,
     candidateName,
+    candidateResume,
+    jobTitle,
+    jobDescription,
     interviewerOptions: {
       name: interviewerName,
       age: Number(interviewerAge),

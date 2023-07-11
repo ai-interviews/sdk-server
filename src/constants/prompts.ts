@@ -83,46 +83,40 @@ export const Prompts = {
     Also, ask the candidate about themself at the end, as shown in the example${candidateName ? `, and mention their name. Their name is ${candidateName}` : '.'}
   `,
 
-  GENERATE_RESUME_QUESTION: `Before we begin, I want you to also craft a single friendly question that I can give to the candidate about anything on their resume (school, specific experience they listed, etc.). 
-  Ask a specific question that isn’t already answered in their resume. 
-  
-  Here is a GOOD example: “Tell me about your the projects you listed at BioRender, how did you mainly contribute?” 
-  Here is a BAD example (too generic and already answered in resume): “Can you tell me about your experience as a Software Engineer Intern at BioRender and the projects you worked on there?”.
-  
-  Here's the resume:
-  
-  \`\`\`
-  Education 
-  Skills 
-  Languages: JavaScript, TypeScript, Python, Java, C, C++, SQL, GraphQL, MongoDB, HTML, CSS, Linux CLI, Makefile 
-  Technologies: Azure, Docker, React, Next.js, Node.js, D3.js, Flask, Redux, Jest, Selenium, jQuery
-  Tools: Git, Hasura, Metabase, PostHog, Postman, pgAdmin, MongoDB Compass, Power BI, Visual Studio, Unity Work Experience 
-  
-  Cloud Solution Architect Intern | Microsoft | Toronto May 2023 – Present 
-  * Developing internal tool with Next.js, PostgreSQL, and Azure that uses GPT-4 to conduct practice phone interviews 
-  * Shadowing full time architects on calls with existing large-scale customers 
-  * Drafting architecture design documents and building prototypes for existing customers
-  Software Engineer Intern | Paper.xyz | San Francisco Jan – Apr 2023 
-  * Designed and developed a billing system with the Stripe SDK, supporting several tiers and usage-based charges 
-  * Developed an experimental checkout link creation feature for Paper's payments developer tool that prioritizes ease- of-use, using a logging system and Metabase that measured a 30% increase in checkout engagement 
-  * Developed multiple internal tools including an automated fraud-alerts system using the Sardine API and a Retool dashboard to redact any user’s identifying data across the database 
-  Software Engineer Intern | BioRender | Toronto Jan – Apr 2022 
-  * Led the development of multiple major full-stack customer-facing features including file sharing, an admin analytics panel, and a dashboard redesign using modern technologies like React, Redux, Node.js, MongoDB, and AWS 
-  * Added and updated Jest unit tests for 20+ components while refactoring over 5k lines of legacy code 
-  * Led meetings of 15+ members to plan and reflect on sprints and presented admin panel project to 100+ coworkers 
-  Software Engineer Intern | SIPSTACK | Toronto Sep – Dec 2020 & May – Aug 2021 
-  * Lead engineer driving the design, implementation, and deployment of a dashboard displaying user data on graphs, tables, and forms using jQuery, Node.js, PostgreSQL and Azure, shortening the timeline by 3 months 
-  * Developed Node.js script (repo) that fetched over 1M entries of local calling data, converted them to formatted CSVs, and imported them to PostgreSQL tables using pgAdmin 
-  Full Stack Developer Intern | CAE Inc. | Montreal Jan – Apr 2020 
-  * Developed the front-end interface in French and collaborated on API of internal web app that tracks 5M+ entries of flight-simulator data with TypeScript, React, Redux, Material-UI, and .NET 
-  * Implemented complex MS SQL merge queries to split excel data of 100 flight simulators to several SQL tables Projects 
-  VR Video Platform (in development) | Typescript, React, Next.js, PostgreSQL, Azure (Repo, Live) 
-  VR web-based community for uploading and sharing 360 videos, with an integrated admin panel for moderators 
-  
-  Multi-threaded Data Scraper | C++ (Repo)Uses producer and consumer threads to parse raw HTML for general data from a list of sources into a CSV 
-  \`\`\`
+  GENERATE_RESUME_QUESTION: (
+    resume: string
+  ) => `Before we begin, I want you to also craft a single friendly question that I can give to the candidate about anything on their resume (school, specific experience they listed, etc.). 
+    Ask a specific question that isn’t already answered in their resume. 
+    
+    Here is a GOOD example: “Tell me about your the projects you listed at BioRender, how did you mainly contribute?” 
+    Here is a BAD example (too generic and already answered in resume): “Can you tell me about your experience as a Software Engineer Intern at BioRender and the projects you worked on there?”.
+    
+    Here's the resume:
+    
+    \`\`\`
+    ${resume}
+    \`\`\`
 
-  Please only respond with the question, nothing else.`,
+    Please only respond with the question, nothing else.
+  `,
+
+  GENERATE_JOB_QUESTION: (
+    jobTitle: string,
+    jobDescription: string
+  ) => `Before we begin, I want you to also craft a single question that I can give to the candidate about anything specific regarding the job they're applied for. 
+    Ask a specific question relevant to the job posting, don't be too general.
+    
+    Here is a GOOD example: “Tell me, what do you enjoy about carpenting” (assuming that carpenting is in the job description)
+    Here is another GOOD example: "What kind of React work have you done in the past?" (assuming React.js and frontend are very relevant to the job description)
+    
+    Here's the job title "${jobTitle}", and here's the description:
+    
+    \`\`\`
+    ${jobDescription}
+    \`\`\`
+
+    Please only respond with the question, nothing else.
+  `,
 
   GENERATE_FOLLOW_UP_QUESTION:
     "Now generate a comment with a follow up question about their response.",

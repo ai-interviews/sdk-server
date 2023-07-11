@@ -60,6 +60,15 @@ export class Interviewer {
   // LLM will refer to candidate by name if provided
   private candidateName?: string;
 
+  // LLM will refer to candidate resume for questions if provided
+  private candidateResume?: string;
+
+  // LLM will refer to job title being applied for
+  private jobTitle?: string;
+
+  // LLM will refer to target job description for questions if provided
+  private jobDescription?: string;
+
   // LLM will be prompted take on this background if provided
   private interviewerOptions?: InterviewerOptions;
 
@@ -73,6 +82,9 @@ export class Interviewer {
     numRequiredQuestions,
     questions,
     candidateName,
+    candidateResume,
+    jobTitle,
+    jobDescription,
     interviewerOptions: {
       name = "Sasha",
       age = 30,
@@ -83,11 +95,17 @@ export class Interviewer {
     numRequiredQuestions: number;
     questions?: string[];
     candidateName?: string;
+    candidateResume?: string;
+    jobTitle?: string;
+    jobDescription?: string;
     interviewerOptions?: InterviewerOptions;
   }) {
     this.numRequiredQuestions = numRequiredQuestions;
     this.questionBank = shuffle(questions || Questions.STAR_METHOD);
     this.candidateName = candidateName;
+    this.candidateResume = candidateResume;
+    this.jobTitle = jobTitle;
+    this.jobDescription = jobDescription;
     this.currentQuestionIndex = 0;
     this.interviewerOptions = {
       name,
@@ -107,11 +125,27 @@ export class Interviewer {
    * - AI generated follow up questions
    */
   public async init() {
-    const resumeQuestion = await callOpenAi(
-      this.chain,
-      Prompts.GENERATE_RESUME_QUESTION
-    );
+    // Generate resume question (if provided)
+    let resumeQuestion;
 
+    if (this.candidateResume) {
+      resumeQuestion = await callOpenAi(
+        this.chain,
+        Prompts.GENERATE_RESUME_QUESTION(this.candidateResume)
+      );
+    }
+
+    // Generate job question (if provided)
+    let jobQuestion;
+
+    if (this.jobTitle && this.jobDescription) {
+      jobQuestion = await callOpenAi(
+        this.chain,
+        Prompts.GENERATE_JOB_QUESTION(this.jobTitle, this.jobDescription)
+      );
+    }
+
+    // Generate introduction
     const introduction =
       "Great. " +
       (await callOpenAi(
@@ -119,13 +153,21 @@ export class Interviewer {
         Prompts.GENERATE_INTRODUCTION({ candidateName: this.candidateName })
       ));
 
+    // Generate list of questions for interviewer to pose
     this.questions = [
       Questions.getOpener(this.candidateName),
       shuffle(Questions.INTERVIEW_LAYOUT)[0],
       introduction,
       Questions.FOLLOW_UP,
-      resumeQuestion,
     ];
+
+    if (jobQuestion) {
+      this.questions.push(jobQuestion);
+    }
+
+    if (resumeQuestion) {
+      this.questions.push(resumeQuestion);
+    }
 
     // Add the number of required question-bank questions at random
     for (let i = 0; i < this.numRequiredQuestions; i++) {
@@ -143,7 +185,7 @@ export class Interviewer {
   private async generateResponse(candidateResponse: string): Promise<string> {
     if (this.currentQuestionIndex <= 2) {
       // Hardocoded responses, regardless of what candidate said
-      return this.questions[this.currentQuestionIndex++];
+      return this.questions[this.currentQuestionIndex];
     }
 
     const isNextQuestionGeneratedByOpenAi =
@@ -167,7 +209,8 @@ export class Interviewer {
     if (isNextQuestionGeneratedByOpenAi) {
       fullResponse = openAiResponse;
     } else {
-      fullResponse = openAiResponse + this.questions[this.currentQuestionIndex];
+      fullResponse =
+        openAiResponse + " " + this.questions[this.currentQuestionIndex];
     }
 
     return fullResponse;
