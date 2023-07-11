@@ -50,8 +50,6 @@ io.on("connection", async (socket) => {
     jobDescription,
   } = connectionSchema.parse(socket.handshake.query);
 
-  console.log(jobTitle);
-
   const metrics = new Metrics();
   const interviewer = new Interviewer({
     numRequiredQuestions: 3,
