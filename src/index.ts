@@ -14,6 +14,7 @@ import { onFinishedSpeaking } from "./lib/socket/onFinishedSpeaking";
 import { onStopRecording } from "./lib/socket/onStopRecording";
 import { onRuntimeError } from "./lib/socket/onRuntimeError";
 import { z } from "zod";
+import "./lib/tracer";
 
 const app = express();
 const server = createServer(app);
