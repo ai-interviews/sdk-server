@@ -202,7 +202,7 @@ export class Interviewer {
         Prompts.END_OF_INTERVIEW
       );
       this.onInterviewEnd?.(openAiResponse);
-      return "";
+      return "That's all of my questions. Thanks for participating in this practice interview.";
     }
 
     const isNextQuestionGeneratedByOpenAi =

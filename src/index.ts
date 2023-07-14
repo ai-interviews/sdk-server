@@ -46,9 +46,10 @@ io.on("connection", async (socket) => {
     jobDescription,
   } = connectionSchema.parse(socket.handshake.query);
 
+  let interviewEndedFeedback = "";
   const metrics = new Metrics();
   const interviewer = new Interviewer({
-    numRequiredQuestions: 3,
+    numRequiredQuestions: 1,
     candidateName,
     candidateResume,
     jobTitle,
@@ -60,7 +61,7 @@ io.on("connection", async (socket) => {
       bio: interviewerBio,
     },
     onInterviewEnd: (feedback) => {
-      emitToSocket(socket, { event: "interviewEnded", data: { feedback } });
+      interviewEndedFeedback = feedback;
     },
   });
 
@@ -107,7 +108,6 @@ io.on("connection", async (socket) => {
     // Called on every word recognized
     onSpeechRecognizing: (text: string) => {
       try {
-        metrics.startAnswerTimer();
         metrics.endQuietTimeTimer();
 
         emitToSocket(socket, {
@@ -163,7 +163,16 @@ io.on("connection", async (socket) => {
   });
 
   // When the interviewer is finished asking a question
-  socket.on("questionAsked", () => metrics.startQuietTimeTimer());
+  socket.on("questionAsked", () => {
+    if (interviewEndedFeedback) {
+      emitToSocket(socket, {
+        event: "interviewEnd",
+        data: { feedback: interviewEndedFeedback },
+      });
+    }
+    metrics.startAnswerTimer();
+    metrics.startQuietTimeTimer();
+  });
 
   // Stop continuous speech recognition, and disconnect socket
   socket.on("stopRecording", () =>
