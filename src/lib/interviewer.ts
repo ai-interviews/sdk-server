@@ -72,6 +72,9 @@ export class Interviewer {
   // LLM will be prompted take on this background if provided
   private interviewerOptions?: InterviewerOptions;
 
+  // Callback will be triggered after all questions have been asked
+  private onInterviewEnd?: (feedback: string) => void;
+
   /**
    *
    * @param numRequiredQuestions Number of required questions to pull from question bank
@@ -91,6 +94,7 @@ export class Interviewer {
       voice = "en-CA-LiamNeural",
       bio = Prompts.DEFAULT_BIO,
     },
+    onInterviewEnd,
   }: {
     numRequiredQuestions: number;
     questions?: string[];
@@ -99,6 +103,7 @@ export class Interviewer {
     jobTitle?: string;
     jobDescription?: string;
     interviewerOptions?: InterviewerOptions;
+    onInterviewEnd?: (feedback: string) => void;
   }) {
     this.numRequiredQuestions = numRequiredQuestions;
     this.questionBank = shuffle(questions || Questions.STAR_METHOD);
@@ -113,6 +118,7 @@ export class Interviewer {
       voice,
       bio,
     };
+    this.onInterviewEnd = onInterviewEnd;
     this.chain = initializeOpenAi({
       interviewerOptions: this.interviewerOptions,
     });
@@ -173,6 +179,8 @@ export class Interviewer {
     for (let i = 0; i < this.numRequiredQuestions; i++) {
       this.questions.push(this.questionBank[i], Questions.FOLLOW_UP);
     }
+
+    // this.questions.push()
   }
 
   /**
@@ -186,6 +194,15 @@ export class Interviewer {
     if (this.currentQuestionIndex <= 2) {
       // Hardocoded responses, regardless of what candidate said
       return this.questions[this.currentQuestionIndex];
+    }
+
+    if (this.currentQuestionIndex === this.questions.length) {
+      const openAiResponse = await callOpenAi(
+        this.chain,
+        Prompts.END_OF_INTERVIEW
+      );
+      this.onInterviewEnd?.(openAiResponse);
+      return "";
     }
 
     const isNextQuestionGeneratedByOpenAi =
@@ -222,10 +239,6 @@ export class Interviewer {
    * @returns The next question for the interviewerOptions to ask
    */
   public async getNextQuestion(candidateResponse: string) {
-    if (this.currentQuestionIndex === this.questions.length) {
-      return;
-    }
-
     const response = await this.generateResponse(candidateResponse);
 
     this.questions[this.currentQuestionIndex++] = response;

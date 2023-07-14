@@ -122,4 +122,6 @@ export const Prompts = {
     "Now generate a comment with a follow up question about their response.",
 
   GENERATE_FOLLOW_UP_COMMENT: "Now generate ONLY a comment.",
+  END_OF_INTERVIEW:
+    "This is the end of the interview. Please provide feedback. Try to give at least one improvement that the candidate can make.",
 };

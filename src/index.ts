@@ -3,11 +3,7 @@ import express from "express";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import { initializeSpeechToText, textToSpeech } from "./lib/speech";
-import {
-  Interviewer,
-  InterviewerOptions,
-  interviewerVoices,
-} from "./lib/interviewer";
+import { Interviewer, interviewerVoices } from "./lib/interviewer";
 import { Metrics } from "./lib/metrics";
 import { emitToSocket } from "./lib/socket/emitToSocket";
 import { onFinishedSpeaking } from "./lib/socket/onFinishedSpeaking";
@@ -62,6 +58,9 @@ io.on("connection", async (socket) => {
       age: Number(interviewerAge),
       voice: interviewerVoice,
       bio: interviewerBio,
+    },
+    onInterviewEnd: (feedback) => {
+      emitToSocket(socket, { event: "interviewEnded", data: { feedback } });
     },
   });
 
@@ -182,5 +181,5 @@ server.listen(PORT, () => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Hello from Server v2");
+  res.send("Hello from Server v3");
 });
