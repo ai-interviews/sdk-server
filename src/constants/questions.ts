@@ -9,8 +9,8 @@ export const Questions = {
   // Second question to ask candidate
   INTERVIEW_LAYOUT: [
     "That's good to hear! I'm doing alright myself, lot's of interviews today but keeping up with the pace. " +
-      "So, here's the plan for today's interview: we'll start with some introductions, dive into questions " +
-      "about your resume, explore your past experiences, and leave room for any questions you may have. Sound good?",
+      "So, here's the plan for today's interview: we'll start with some introductions, dive into some questions for you, " +
+      "explore your past experiences, and leave room for any questions you may have. Sound good?",
   ],
 
   // Third question to ask candidate

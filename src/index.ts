@@ -49,7 +49,7 @@ io.on("connection", async (socket) => {
   let interviewEndedFeedback = "";
   const metrics = new Metrics();
   const interviewer = new Interviewer({
-    numRequiredQuestions: 1,
+    numRequiredQuestions: 2,
     candidateName,
     candidateResume,
     jobTitle,
@@ -142,18 +142,18 @@ io.on("connection", async (socket) => {
   });
 
   // Process candidate response and generate next response
-  socket.on("finishedSpeaking", async () => {
-    if (!candidateResponse.length) {
+  socket.on("finishedSpeaking", async (text?: string) => {
+    if (!text && !candidateResponse.length) {
       await new Promise((resolve) => setTimeout(resolve, 2000));
     }
 
-    if (!candidateResponse.length) {
+    if (!text && !candidateResponse.length) {
       console.log("No speech detected.");
       return;
     }
 
     await onFinishedSpeaking(socket, {
-      candidateResponse,
+      candidateResponse: text || candidateResponse,
       interviewer,
       metrics,
     });
@@ -190,5 +190,5 @@ server.listen(PORT, () => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Hello from Server v3");
+  res.send("Hello from Server v4");
 });
