@@ -11,7 +11,7 @@ import { Prompts, SystemPrompt } from "../constants/prompts";
 
 const chat = new ChatOpenAI({
   openAIApiKey: process.env.OPENAI_API_KEY,
-  modelName: "gpt-3.5-turbo",
+  modelName: "gpt-3.5-turbo-16k",
 });
 
 /**

@@ -41,6 +41,13 @@ type RecognitionStartedEvent = {
   data: {};
 };
 
+type InterviewEndEvent = {
+  event: "interviewEnd";
+  data: {
+    feedback: string;
+  };
+};
+
 type RuntimeErrorEvent = {
   event: "error";
   data: {
@@ -54,6 +61,7 @@ type SocketData =
   | InterviewMetricsEvent
   | SpeechRecognizedEvent
   | RecognitionStartedEvent
+  | InterviewEndEvent
   | RuntimeErrorEvent;
 
 export const emitToSocket = (socket: Socket, { event, data }: SocketData) => {

@@ -35,6 +35,10 @@ export const onFinishedSpeaking = async (
       candidateResponse
     );
 
+    if (nextQuestionForCandidate.includes("XQXQXQ")) {
+      socket.disconnect();
+    }
+
     const audioData = await textToSpeech({
       voice: interviewer.getInterviewerOptions().voice,
       text: nextQuestionForCandidate,

@@ -3,11 +3,7 @@ import express from "express";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import { initializeSpeechToText, textToSpeech } from "./lib/speech";
-import {
-  Interviewer,
-  InterviewerOptions,
-  interviewerVoices,
-} from "./lib/interviewer";
+import { Interviewer, interviewerVoices } from "./lib/interviewer";
 import { Metrics } from "./lib/metrics";
 import { emitToSocket } from "./lib/socket/emitToSocket";
 import { onFinishedSpeaking } from "./lib/socket/onFinishedSpeaking";
@@ -50,9 +46,10 @@ io.on("connection", async (socket) => {
     jobDescription,
   } = connectionSchema.parse(socket.handshake.query);
 
+  let interviewEndedFeedback = "";
   const metrics = new Metrics();
   const interviewer = new Interviewer({
-    numRequiredQuestions: 3,
+    numRequiredQuestions: 2,
     candidateName,
     candidateResume,
     jobTitle,
@@ -62,6 +59,9 @@ io.on("connection", async (socket) => {
       age: Number(interviewerAge),
       voice: interviewerVoice,
       bio: interviewerBio,
+    },
+    onInterviewEnd: (feedback) => {
+      interviewEndedFeedback = feedback;
     },
   });
 
@@ -108,7 +108,6 @@ io.on("connection", async (socket) => {
     // Called on every word recognized
     onSpeechRecognizing: (text: string) => {
       try {
-        metrics.startAnswerTimer();
         metrics.endQuietTimeTimer();
 
         emitToSocket(socket, {
@@ -143,18 +142,18 @@ io.on("connection", async (socket) => {
   });
 
   // Process candidate response and generate next response
-  socket.on("finishedSpeaking", async () => {
-    if (!candidateResponse.length) {
+  socket.on("finishedSpeaking", async (text?: string) => {
+    if (!text && !candidateResponse.length) {
       await new Promise((resolve) => setTimeout(resolve, 2000));
     }
 
-    if (!candidateResponse.length) {
+    if (!text && !candidateResponse.length) {
       console.log("No speech detected.");
       return;
     }
 
     await onFinishedSpeaking(socket, {
-      candidateResponse,
+      candidateResponse: text || candidateResponse,
       interviewer,
       metrics,
     });
@@ -164,7 +163,16 @@ io.on("connection", async (socket) => {
   });
 
   // When the interviewer is finished asking a question
-  socket.on("questionAsked", () => metrics.startQuietTimeTimer());
+  socket.on("questionAsked", () => {
+    if (interviewEndedFeedback) {
+      emitToSocket(socket, {
+        event: "interviewEnd",
+        data: { feedback: interviewEndedFeedback },
+      });
+    }
+    metrics.startAnswerTimer();
+    metrics.startQuietTimeTimer();
+  });
 
   // Stop continuous speech recognition, and disconnect socket
   socket.on("stopRecording", () =>
@@ -182,5 +190,5 @@ server.listen(PORT, () => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Hello from Server v2");
+  res.send("Hello from Server v4");
 });
