@@ -6,28 +6,35 @@ import {
 } from "langchain/prompts";
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { ConversationChain } from "langchain/chains";
-import { BufferMemory } from "langchain/memory";
-import { Prompts, SystemPrompt } from "../constants/prompts";
+import { ConversationSummaryMemory } from "langchain/memory";
+import { Prompts, SystemPromptParams } from "../constants/prompts";
 
 const chat = new ChatOpenAI({
   openAIApiKey: process.env.OPENAI_API_KEY,
   modelName: "gpt-3.5-turbo-16k",
+  maxTokens: 300,
 });
 
 /**
  *
  * @returns A new langchain conversational chain with history
  */
-export const initializeOpenAi = (prompt: SystemPrompt): ConversationChain => {
+export const initializeOpenAi = (
+  params: SystemPromptParams
+): ConversationChain => {
   // Conversational chain allows us to start a conversation with history
   const chatPrompt = ChatPromptTemplate.fromPromptMessages([
-    SystemMessagePromptTemplate.fromTemplate(Prompts.SYSTEM(prompt)),
+    SystemMessagePromptTemplate.fromTemplate(Prompts.SYSTEM(params)),
     new MessagesPlaceholder("history"),
     HumanMessagePromptTemplate.fromTemplate("{input}"),
   ]);
 
   return new ConversationChain({
-    memory: new BufferMemory({ returnMessages: true, memoryKey: "history" }),
+    memory: new ConversationSummaryMemory({
+      llm: chat,
+      returnMessages: true,
+      memoryKey: "history",
+    }),
     prompt: chatPrompt,
     llm: chat,
   });
@@ -47,5 +54,5 @@ export const callOpenAi = async (
     input,
   });
 
-  return completion.response as string;
+  return completion.response.replace('"', "") as string;
 };

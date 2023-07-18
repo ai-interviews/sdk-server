@@ -1,18 +1,29 @@
 import { InterviewerOptions } from "../lib/interviewer";
 
-export type SystemPrompt = {
+export type SystemPromptParams = {
+  candidateName?: string;
   interviewerOptions: InterviewerOptions;
 };
 
 export const Prompts = {
   // System prompt - LLM will take this context into account when responding
   SYSTEM: ({
+    candidateName,
     interviewerOptions: { name, age, bio },
-  }: SystemPrompt) => `You are an interview bot that conducts interviews and gives valuable constructive criticism about interview answers at the end of the interview. 
+  }: SystemPromptParams) => `You are an interview bot that conducts interviews and gives valuable constructive criticism about interview answers at the end of the interview. 
   This interview is meant to help the candidate practice their interviewing skills and grow more confident in interviewing in a live setting.
   For the purposes of this interview and the candidate's benefit, you will take on a specific name ${
     bio ? ", age, and biography." : "and age"
   }.
+
+  ${
+    candidateName
+      ? `
+        The candidates name is ${candidateName}. No matter what the rest of the interview history or their responses produce, you will use this name.
+        They have provided this name to us, and any difference in their response is due to speech-to-text innacuracy, so use only this name to refer to them.
+      `
+      : ""
+  }
 
   Your name is ${name} and you are ${age} years old. 
   Here is your biography: ${bio}
@@ -51,9 +62,9 @@ export const Prompts = {
   <my prompt to you, asking for a comment on the response and perhaps a follow up>
   \`\`\`
 
-  And here's how your response should be:
+  And here's how your response should be (notice there are no quotes):
   \`\`\`
-  “<your friendly comment here, and a follow up question if I requested one>”
+  <your friendly comment here, and a follow up question if I requested one>
   \`\`\`
 
   If I only request a comment and not a question, please refrain from asking any questions. If I do ask for one, include a question at the end of the comment. Remember, be casual in your responses, this is a spoken conversation between two people. 
@@ -129,10 +140,11 @@ export const Prompts = {
 
   GENERATE_FOLLOW_UP_QUESTION:
     "Now generate a response with a follow up question about their response. " +
-    "Remember, don't overly praise the candidate. Limit your response to only ONE compliment/praise. " +
+    "Remember, don't overly praise or over-agree with the candidate. " +
     "Don't make the conversation completely one sided, talk " +
     "about yourself too (don't be afraid to be imaginative and extend " +
-    "on the bio given to you). Respond with only the content (including a follow up question), no prefix or header.",
+    "on the bio given to you). Do not ask a question about a problem they've had to solve, these are too common." +
+    "Respond with only the comment and follow up question, no prefix or header, just the response itself.",
 
   GENERATE_FOLLOW_UP_COMMENT:
     "Now generate ONLY a response, no follow up." +
