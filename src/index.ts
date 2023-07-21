@@ -17,6 +17,8 @@ const server = createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "*",
+    allowedHeaders: "*",
+    methods: "*",
   },
 });
 
@@ -189,6 +191,6 @@ server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
 
-app.get("/", (req, res) => {
-  res.send("Hello from Server v4");
+app.get("/", (_, res) => {
+  res.send("Hello from Server v6");
 });

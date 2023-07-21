@@ -261,6 +261,6 @@ export class Interviewer {
   public getCurrentQuestion() {
     const phrases =
       this.questions[Math.max(this.currentQuestionIndex - 1, 0)].split(".");
-    return phrases[phrases.length - 1];
+    return phrases[phrases.length - 1] || phrases[phrases.length - 2] + ".";
   }
 }
