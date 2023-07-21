@@ -13,6 +13,7 @@ const chat = new ChatOpenAI({
   openAIApiKey: process.env.OPENAI_API_KEY,
   modelName: "gpt-3.5-turbo-16k",
   maxTokens: 300,
+  temperature: 0.2,
 });
 
 /**

@@ -143,7 +143,7 @@ export const Prompts = {
     "Remember, don't overly praise or over-agree with the candidate. " +
     "Don't make the conversation completely one sided, talk " +
     "about yourself too (don't be afraid to be imaginative and extend " +
-    "on the bio given to you). Do not ask a question about a problem they've had to solve, these are too common." +
+    "on the bio given to you). Do not ask a question about a problem/challenge they've faced, these are too common." +
     "Respond with only the comment and follow up question, no prefix or header, just the response itself.",
 
   GENERATE_FOLLOW_UP_COMMENT:
@@ -151,7 +151,7 @@ export const Prompts = {
     "Remember, don't overly praise the candidate. Limit your response to only ONE compliment/praise, no more. " +
     "Don't make the conversation completely one sided, talk about yourself too in the response." +
     "Don't be afraid to be imaginative and extend on the bio given to you. This is required, talk about yourself. This is crucial." +
-    "Respond with only the content, no prefix or header, and NO FOLLOW UP QUESTION.",
+    "Respond with only the content, no prefix or header, and no follow up question. Do not ask a question, no question, only a comment.",
 
   END_OF_INTERVIEW:
     "This is the end of the interview. Please provide feedback. Try to give at least one improvement that the candidate can make.",
