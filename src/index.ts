@@ -192,5 +192,5 @@ server.listen(PORT, () => {
 });
 
 app.get("/", (_, res) => {
-  res.send("Hello from Server v6");
+  res.send("Hello from Server v7");
 });
