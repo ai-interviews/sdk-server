@@ -10,9 +10,11 @@ export const onStopRecording = async (
   {
     metrics,
     speechRecognizer,
+    interviewer,
   }: {
     metrics: Metrics;
     speechRecognizer: SpeechRecognizer;
+    interviewer: Interviewer;
   }
 ) => {
   try {
@@ -22,13 +24,15 @@ export const onStopRecording = async (
     });
 
     const { wordFrequency, lengthSeconds } = metrics.getInterviewMetrics();
+    const feedback = await interviewer.getInterviewFeedback();
 
     // Send metrics to client
     emitToSocket(socket, {
       event: "interviewMetrics",
-      data: { wordFrequency, lengthSeconds },
+      data: { wordFrequency, lengthSeconds, feedback },
     });
 
+    console.log("close");
     socket.disconnect();
   } catch (error) {
     onRuntimeError(socket, { message: "Error stopping recording", error });

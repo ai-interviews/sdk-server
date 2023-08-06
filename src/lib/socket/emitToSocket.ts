@@ -32,6 +32,7 @@ type InterviewMetricsEvent = {
   data: {
     wordFrequency: Record<string, number>;
     lengthSeconds: number;
+    feedback: string;
   };
 };
 
@@ -42,9 +43,7 @@ type RecognitionStartedEvent = {
 
 type InterviewEndEvent = {
   event: "interviewEnd";
-  data: {
-    feedback: string;
-  };
+  data: {};
 };
 
 type RuntimeErrorEvent = {

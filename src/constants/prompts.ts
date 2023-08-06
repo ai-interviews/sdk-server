@@ -154,5 +154,5 @@ export const Prompts = {
     "Respond with only the content, no prefix or header, and no follow up question. Do not ask a question, no question, only a comment.",
 
   END_OF_INTERVIEW:
-    "This is the end of the interview. Please provide feedback. Try to give at least one improvement that the candidate can make.",
+    "This is the end of the interview. Please provide feedback. Try to give at least one improvement that the candidate can make. If there is not enough content in the interview to generate feedback, say 'Not enough content to generate feedback' without the quotes.",
 };

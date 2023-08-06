@@ -48,7 +48,6 @@ io.on("connection", async (socket) => {
     jobDescription,
   } = connectionSchema.parse(socket.handshake.query);
 
-  let interviewEndedFeedback = "";
   const metrics = new Metrics();
   const interviewer = new Interviewer({
     numRequiredQuestions: 2,
@@ -62,8 +61,11 @@ io.on("connection", async (socket) => {
       voice: interviewerVoice,
       bio: interviewerBio,
     },
-    onInterviewEnd: (feedback) => {
-      interviewEndedFeedback = feedback;
+    onInterviewEnd: () => {
+      emitToSocket(socket, {
+        event: "interviewEnd",
+        data: {},
+      });
     },
   });
 
@@ -166,19 +168,13 @@ io.on("connection", async (socket) => {
 
   // When the interviewer is finished asking a question
   socket.on("questionAsked", () => {
-    if (interviewEndedFeedback) {
-      emitToSocket(socket, {
-        event: "interviewEnd",
-        data: { feedback: interviewEndedFeedback },
-      });
-    }
     metrics.startAnswerTimer();
     metrics.startQuietTimeTimer();
   });
 
   // Stop continuous speech recognition, and disconnect socket
   socket.on("stopRecording", () =>
-    onStopRecording(socket, { metrics, speechRecognizer })
+    onStopRecording(socket, { metrics, speechRecognizer, interviewer })
   );
 
   socket.on("disconnect", () => {
@@ -192,5 +188,5 @@ server.listen(PORT, () => {
 });
 
 app.get("/", (_, res) => {
-  res.send("Hello from Server v7");
+  res.send("Hello from Server v8");
 });

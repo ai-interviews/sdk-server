@@ -73,7 +73,7 @@ export class Interviewer {
   private interviewerOptions?: InterviewerOptions;
 
   // Callback will be triggered after all questions have been asked
-  private onInterviewEnd?: (feedback: string) => void;
+  private onInterviewEnd?: () => void;
 
   /**
    *
@@ -103,7 +103,7 @@ export class Interviewer {
     jobTitle?: string;
     jobDescription?: string;
     interviewerOptions?: InterviewerOptions;
-    onInterviewEnd?: (feedback: string) => void;
+    onInterviewEnd?: () => void;
   }) {
     this.numRequiredQuestions = numRequiredQuestions;
     this.questionBank = shuffle(questions || Questions.STAR_METHOD);
@@ -197,11 +197,7 @@ export class Interviewer {
     }
 
     if (this.currentQuestionIndex === this.questions.length) {
-      const openAiResponse = await callOpenAi(
-        this.chain,
-        Prompts.END_OF_INTERVIEW
-      );
-      this.onInterviewEnd?.(openAiResponse);
+      this.onInterviewEnd?.();
       return "That's all of my questions. Thanks for participating in this practice interview.";
     }
 
@@ -231,6 +227,14 @@ export class Interviewer {
     }
 
     return fullResponse;
+  }
+
+  public async getInterviewFeedback() {
+    if (this.currentQuestionIndex < 2) {
+      return "Not enough content to generate feedback";
+    }
+
+    return callOpenAi(this.chain, Prompts.END_OF_INTERVIEW);
   }
 
   /**
